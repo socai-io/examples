@@ -1,0 +1,64 @@
+name: API examples
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [python, javascript, typescript, go, rust, java, csharp, ruby, php, swift, kotlin]
+        include:
+          - language: swift
+            runner: macos-15
+    runs-on: ${{ matrix.runner || 'ubuntu-24.04' }}
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v6
+        if: contains(fromJSON('["javascript","typescript"]'), matrix.language)
+        with:
+          node-version: '24'
+      - uses: actions/setup-go@v6
+        if: matrix.language == 'go'
+        with:
+          go-version: '1.24'
+          cache: false
+      - uses: dtolnay/rust-toolchain@stable
+        if: matrix.language == 'rust'
+      - uses: actions/setup-java@v5
+        if: contains(fromJSON('["java","kotlin"]'), matrix.language)
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-dotnet@v5
+        if: matrix.language == 'csharp'
+        with:
+          dotnet-version: '8.0.x'
+      - uses: ruby/setup-ruby@v1
+        if: matrix.language == 'ruby'
+        with:
+          ruby-version: '3.3'
+      - uses: shivammathur/setup-php@v2
+        if: matrix.language == 'php'
+        with:
+          php-version: '8.3'
+          extensions: curl
+          coverage: none
+      - uses: fwilhe2/setup-kotlin@v2.1
+        if: matrix.language == 'kotlin'
+        with:
+          version: '2.1.20'
+      - name: Four API operations and error paths
+        run: python tests/contracts.py ${{ matrix.language }}

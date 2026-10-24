@@ -1,0 +1,10 @@
+[package]
+name = "socai-api-example"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+ureq = { version = "3", features = ["json"] }
+serde_json = "1"
+url = "2"

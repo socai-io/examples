@@ -1,0 +1,11 @@
+.env
+.env.*
+!.env.example
+target/
+bin/
+obj/
+*.class
+*.jar
+.build/
+__pycache__/
+node_modules/
